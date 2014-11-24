@@ -16,6 +16,7 @@ if [ ! -f /vagrant/$ANSIBLE_HOSTS ]; then
 fi
 
 if [ ! -d $ANSIBLE_DIR ]; then
+    cp /vagrant/windows/sources.list /etc/apt/sources.list 
 	echo "Updating apt cache"
 	apt-get update
 	echo "Installing Ansible dependencies and Git"
@@ -27,5 +28,5 @@ fi
 cd ${ANSIBLE_DIR}
 cp /vagrant/${ANSIBLE_HOSTS} ${TEMP_HOSTS} && chmod -x ${TEMP_HOSTS}
 echo "Running Ansible"
-bash -c "ansible-playbook /vagrant/${ANSIBLE_PLAYBOOK} --inventory-file=${TEMP_HOSTS} --connection=local -u vagrant -s"
+bash -c "ansible-playbook /vagrant/${ANSIBLE_PLAYBOOK} --inventory-file=${TEMP_HOSTS} --connection=local -u vagrant"
 rm ${TEMP_HOSTS}

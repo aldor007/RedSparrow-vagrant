@@ -22,6 +22,8 @@ system_packages:
   - tree
   - git
   - python-software-properties
+  - antiword
+  - odt2txt
 pip_packages:
   - virtualenv
   - virtualenvwrapper

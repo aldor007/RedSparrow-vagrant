@@ -13,7 +13,7 @@ Install
 ```
 vagrant[.exe] up
 ```
-Afere ~10 minutes you have VM with:
+Afere ~10 minutes you'll have VM with:
 * repo of RedSparrow and RedSparrowFront
 * nginx, php,zmq
 
@@ -27,6 +27,7 @@ mysql localhost:33060
 Update it
 ----------
 ```
+git pull
 vagrant provision
 ```
 
