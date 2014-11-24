@@ -1,5 +1,5 @@
 ---
-myslq_users:
+mysql_users:
   - name: studia
     pass: studia
     priv: "*.*:ALL"
@@ -14,6 +14,7 @@ python_packages:
   - libxslt1-dev
   - libxml2-dev
   - libbz2-dev
+  - zlib1g-dev
   - python-virtualenv
 system_packages:
   - build-essential
@@ -29,4 +30,4 @@ web_package:
   - nginx
   - php5-fpm
   - libzmq-dev
-  - php-zmq
+  - php5-zmq

@@ -23,18 +23,31 @@
 
   - name: clone redsparow
     git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow
+    remote_user: vagrant
 
   - name: clone RedSparrowFront
-    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/var/www/redsparrow
+    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/home/vagrant/RedSparrowFront
+    remote_user: vagrant
+
+  - name: permissions for www-data user
+    file: src=/var/www/redsparow dest=/home/vagrant/RedSparrowFront owner=www-data group=www-data state=lint
+
+  - name: permission for www user
+    acl: name=/home/vagrant/RedSparrowFront  entity=www-data etype=group permissions=rwx state=present default=yes
+
+  - name: permission for vagrant
+    acl: name=/home/vagrant/RedSparrowFront  entity=vagrant etype=group permissions=rwx state=present default=yamlTimestamp
 
   - name: pip install requirements
     pip: requirements=/home/vagrant/RedSparrow/requirements.txt virtualenv=/home/vagrant/PY3
+    remote_user: vagrant
 
   - name: pip install tox pytest
-    pip: requirments={{item}} virtualenv=/home/vagrant/PY3
+    pip: name={{item}} virtualenv=/home/vagrant/PY3
     with_items:
       - tox
       - pytest
+    remote_user: vagrant
 
   # - name: add repos
   #   apt_repository:  repo={{ item }} state=present
@@ -46,26 +59,24 @@
     with_items: web_package
 
   - name: Nginx config
-    template: src=default.conf.j2 dest=/etc/nginx/sites-enable/default
+    template: src=default.conf.j2 dest=/etc/nginx/sites-enabled/default
     notify:
       - reload nginx
 
   - name: Myslq server
     apt: pkg=mysql-server
 
-  - name: update mysql root password for all root accounts
-    mysql_user: name=root host={{ item }} password=root
-    with_items:
-      - localhost
-      - ::1
-  - name: update mysql root password for all root accounts
-    mysql_user: name=root host={{ item }} password=root
-    with_items:
-      - localhost
-      - ::1
+  - name: copy .my.cnf file with root password credentials
+    template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
+
+  # - name: update mysql root password for all root accounts
+  #   mysql_user: name=root host=% password=root
+
   - name: create myslq users
-    mysql_user: name={{ item.name }}  password={{ item.pass|default("foobar") }} priv={{ item.priv|default("*.*:ALL") }} state=present host={{ item.host | default("{{ansible_hostname }}") }}
+    mysql_user: name={{ item.name }}  password={{ item.pass|default("studia") }} priv={{ item.priv|default("*.*:ALL") }} state=present host={{ item.host | default("{{ansible_hostname }}") }}
     with_items: mysql_users
+    when: mysql_users|lower() != 'none'
+
 
   handlers:
     - include: handlers.yml
