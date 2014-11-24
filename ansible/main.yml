@@ -1,0 +1,71 @@
+---
+
+- hosts: all
+  vars_files:
+    - vars.yml
+
+  tasks:
+  - name: Install system packages.
+    apt: pkg={{item}} state=installed update-cache=yes
+    with_items: system_packages
+
+  - name: Add repository key to keychain
+    apt_key: url=http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x5BB92C09DB82666C state=present
+
+
+  - name: Install Python 3.3
+    apt: pkg={{item}} update-cache=yes force=yes
+    with_items: python_packages
+
+  - name: create virtualenv
+    shell: virtualenv /home/vagrant/PY3 --distribute -p python3
+
+
+  - name: clone redsparow
+    git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow
+
+  - name: clone RedSparrowFront
+    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/var/www/redsparrow
+
+  - name: pip install requirements
+    pip: requirements=/home/vagrant/RedSparrow/requirements.txt virtualenv=/home/vagrant/PY3
+
+  - name: pip install tox pytest
+    pip: requirments={{item}} virtualenv=/home/vagrant/PY3
+    with_items:
+      - tox
+      - pytest
+
+  # - name: add repos
+  #   apt_repository:  repo={{ item }} state=present
+  #   with_items:
+  #    - "'deb http://ppa.launchpad.net/chris-lea/zeromq/ubuntu precise main'"
+  #    - "'deb-src http://ppa.launchpad.net/chris-lea/zeromq/ubuntu precise main'"
+  - name: Install Web
+    apt: pkg={{item}} update-cache=yes force=yes
+    with_items: web_package
+
+  - name: Nginx config
+    template: src=default.conf.j2 dest=/etc/nginx/sites-enable/default
+    notify:
+      - reload nginx
+
+  - name: Myslq server
+    apt: pkg=mysql-server
+
+  - name: update mysql root password for all root accounts
+    mysql_user: name=root host={{ item }} password=root
+    with_items:
+      - localhost
+      - ::1
+  - name: update mysql root password for all root accounts
+    mysql_user: name=root host={{ item }} password=root
+    with_items:
+      - localhost
+      - ::1
+  - name: create myslq users
+    mysql_user: name={{ item.name }}  password={{ item.pass|default("foobar") }} priv={{ item.priv|default("*.*:ALL") }} state=present host={{ item.host | default("{{ansible_hostname }}") }}
+    with_items: mysql_users
+
+  handlers:
+    - include: handlers.yml

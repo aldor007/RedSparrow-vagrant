@@ -1,0 +1,29 @@
+server {
+  listen   80;
+  server_name 0.0.0.0;
+  access_log  /var/log/nginx/redsparrow.access.log;
+  error_log  /var/log/nginx/redsparrow.error.log;
+
+   root   /var/www/redsparrow;
+
+   location ~* (/(css|js|images|font-awesome-4.1.0)/.*) {
+    rewrite  ^/((css|js|images|font-awesome-4.1.0)/.*) /ui/$1 break;
+
+   }
+    location / {
+        index index.php index.html index.htm;
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php5-fpm.sock; 
+    fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+    location /fatfree/ {
+    if (!-e $request_filename){
+        rewrite ^/fatfree/(.*)$ /fatfree/fatfree/index.php break;
+         }
+    }
+}
+
