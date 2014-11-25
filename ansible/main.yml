@@ -122,7 +122,10 @@
     template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
     sudo: yes
 
+  - name: install samba
+    apt: pkg=samba state=installed
 
-
+  - name: samba conf
+    copy: src=smb.conf dest=/etc/samba/smb.conf
   handlers:
     - include: handlers.yml
