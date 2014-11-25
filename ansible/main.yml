@@ -26,13 +26,13 @@
 
 
   - name: clone redsparow
-    git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow
+    git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow update=no
     remote_user: vagrant
     sudo: yes
     sudo_user: vagrant
 
   - name: clone RedSparrowFront
-    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/home/vagrant/RedSparrowFront
+    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/home/vagrant/RedSparrowFront update=no
     remote_user: vagrant
     sudo: yes
     sudo_user: vagrant
@@ -107,6 +107,9 @@
     with_items: mysql_users
     when: mysql_users|lower() != 'none'
     sudo: yes
+
+  - name: create redsparrow database
+    mysql_db: name=redsparrow state=present
 
   - name: update mysql root pass
     mysql_user: name=root host={{item}} password=root

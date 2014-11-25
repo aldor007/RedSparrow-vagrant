@@ -5,6 +5,9 @@ ANSIBLE_PLAYBOOK=$2
 ANSIBLE_HOSTS=$3
 TEMP_HOSTS="/tmp/ansible_hosts"
 echo 'LANG="pl_PL.UTF-8"' > /etc/default/locale
+echo 'LANG="pl_PL.UTF-8"' > /etc/default/locale
+cp /vagrant/windows/locale.gen  /etc/locale.gen
+locale-gen pl_PL.utf8
 if [ ! -f /vagrant/$ANSIBLE_PLAYBOOK ]; then
 	echo "Cannot find Ansible playbook"
 	exit 1
