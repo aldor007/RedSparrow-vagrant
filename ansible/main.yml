@@ -6,41 +6,61 @@
 
   tasks:
   - name: Install system packages.
-    apt: pkg={{item}} state=installed update-cache=yes
+    apt: pkg={{item}} state=installed
     with_items: system_packages
+    sudo: yes
 
   - name: Add repository key to keychain
     apt_key: url=http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x5BB92C09DB82666C state=present
 
 
   - name: Install Python 3.3
-    apt: pkg={{item}} update-cache=yes force=yes
+    apt: pkg={{item}} state=installed
     with_items: python_packages
+    sudo: yes
 
   - name: create virtualenv
     shell: virtualenv /home/vagrant/PY3 --distribute -p python3
+    sudo: yes
+    sudo_user: vagrant
 
 
   - name: clone redsparow
     git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow
     remote_user: vagrant
+    sudo: yes
+    sudo_user: vagrant
 
   - name: clone RedSparrowFront
     git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/home/vagrant/RedSparrowFront
     remote_user: vagrant
+    sudo: yes
+    sudo_user: vagrant
 
-  - name: permissions for www-data user
-    file: src=/var/www/redsparow dest=/home/vagrant/RedSparrowFront owner=www-data group=www-data state=lint
+  - name: copy nlt_data
+    shell: cp -r /home/vagrant/RedSparrow/nltk_data /usr/share/nltk_data
+    sudo: yes
+
+  - name: create www dir
+    file: path=/var/www owner=www-data group=www-data state=directory
+    sudo: yes
+  - name: create symlink
+    file: src=/home/vagrant/RedSparrowFront dest=/var/www/redsparrow  owner=www-data group=www-data state=link
+    sudo: yes
 
   - name: permission for www user
     acl: name=/home/vagrant/RedSparrowFront  entity=www-data etype=group permissions=rwx state=present default=yes
+    sudo: yes
 
   - name: permission for vagrant
-    acl: name=/home/vagrant/RedSparrowFront  entity=vagrant etype=group permissions=rwx state=present default=yamlTimestamp
+    acl: name=/home/vagrant/RedSparrowFront  entity=vagrant etype=group permissions=rwx state=present default=yes
+    sudo: yes
 
   - name: pip install requirements
     pip: requirements=/home/vagrant/RedSparrow/requirements.txt virtualenv=/home/vagrant/PY3
     remote_user: vagrant
+    sudo: yes
+    sudo_user: vagrant
 
   - name: pip install tox pytest
     pip: name={{item}} virtualenv=/home/vagrant/PY3
@@ -48,6 +68,8 @@
       - tox
       - pytest
     remote_user: vagrant
+    sudo: yes
+    sudo_user: vagrant
 
   # - name: add repos
   #   apt_repository:  repo={{ item }} state=present
@@ -55,27 +77,48 @@
   #    - "'deb http://ppa.launchpad.net/chris-lea/zeromq/ubuntu precise main'"
   #    - "'deb-src http://ppa.launchpad.net/chris-lea/zeromq/ubuntu precise main'"
   - name: Install Web
-    apt: pkg={{item}} update-cache=yes force=yes
+    apt: pkg={{item}} state=installed
     with_items: web_package
+    sudo: yes
 
   - name: Nginx config
     template: src=default.conf.j2 dest=/etc/nginx/sites-enabled/default
+    sudo: yes
     notify:
       - reload nginx
 
-  - name: Myslq server
+  - name: reload nginx
+    service: name=nginx state=reloaded
+    sudo: yes
+  - name: Mysql server
     apt: pkg=mysql-server
+    sudo: yes
 
-  - name: copy .my.cnf file with root password credentials
-    template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
+  - name: copy my.cnf file
+    copy: src=my.cnf dest=/etc/mysql/my.cnf
+    sudo: yes
 
-  # - name: update mysql root password for all root accounts
-  #   mysql_user: name=root host=% password=root
+  - name: restart mysql
+    service: name=mysql state=restarted
+    sudo: yes
 
-  - name: create myslq users
+  - name: create mysql users
     mysql_user: name={{ item.name }}  password={{ item.pass|default("studia") }} priv={{ item.priv|default("*.*:ALL") }} state=present host={{ item.host | default("{{ansible_hostname }}") }}
     with_items: mysql_users
     when: mysql_users|lower() != 'none'
+    sudo: yes
+
+  - name: update mysql root pass
+    mysql_user: name=root host={{item}} password=root
+    with_items:
+      - ::1
+      - localhost
+    sudo: yes
+
+  - name: copy .my.cnf file with root password updated
+    template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
+    sudo: yes
+
 
 
   handlers:
