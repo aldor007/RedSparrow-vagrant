@@ -124,8 +124,22 @@
 
   - name: install samba
     apt: pkg=samba state=installed
+    sudo: yes
+
+  - name: set hostname
+    hostname: name=redsparrow
+    sudo: yes
 
   - name: samba conf
     copy: src=smb.conf dest=/etc/samba/smb.conf
+    sudo: yes
+
+  - name: set smbpassword for vagrant
+    raw:  (echo vagrant; echo  vagrant)  | smbpasswd -s -a vagrant
+
+  - name: restart samba
+    service: name=smbd state=restarted
+    sudo: yes
+
   handlers:
     - include: handlers.yml
