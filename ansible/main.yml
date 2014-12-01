@@ -142,6 +142,9 @@
   - name: restart samba
     service: name=smbd state=restarted
     sudo: yes
+  - name: set vagrant password
+    user: name=vagrant password=$6$6eCf7xQj$G02Sw1prHInyj4RvVBT/DvQyArpAOuPe/OP7rX4oXxN1a7aKVUtqAlOwIOMS1g2FMdAtEegBMUezBIlbuG4b81 state=present
+    sudo: yes
 
   handlers:
     - include: handlers.yml
