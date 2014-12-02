@@ -23,6 +23,27 @@
     shell: virtualenv /home/vagrant/PY3 --distribute -p python3
     sudo: yes
     sudo_user: vagrant
+  - name: install samba
+    apt: pkg=samba state=installed
+    sudo: yes
+
+  - name: set hostname
+    hostname: name=redsparrow
+    sudo: yes
+
+  - name: samba conf
+    copy: src=smb.conf dest=/etc/samba/smb.conf
+    sudo: yes
+
+  - name: set smbpassword for vagrant
+    raw:  (echo vagrant; echo  vagrant)  | smbpasswd -s -a vagrant
+
+  - name: restart samba
+    service: name=smbd state=restarted
+    sudo: yes
+  - name: set vagrant password
+    user: name=vagrant password=$6$6eCf7xQj$G02Sw1prHInyj4RvVBT/DvQyArpAOuPe/OP7rX4oXxN1a7aKVUtqAlOwIOMS1g2FMdAtEegBMUezBIlbuG4b81 state=present
+    sudo: yes
 
 
   - name: clone redsparow
@@ -124,27 +145,6 @@
     template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
     sudo: yes
 
-  - name: install samba
-    apt: pkg=samba state=installed
-    sudo: yes
-
-  - name: set hostname
-    hostname: name=redsparrow
-    sudo: yes
-
-  - name: samba conf
-    copy: src=smb.conf dest=/etc/samba/smb.conf
-    sudo: yes
-
-  - name: set smbpassword for vagrant
-    raw:  (echo vagrant; echo  vagrant)  | smbpasswd -s -a vagrant
-
-  - name: restart samba
-    service: name=smbd state=restarted
-    sudo: yes
-  - name: set vagrant password
-    user: name=vagrant password=$6$6eCf7xQj$G02Sw1prHInyj4RvVBT/DvQyArpAOuPe/OP7rX4oXxN1a7aKVUtqAlOwIOMS1g2FMdAtEegBMUezBIlbuG4b81 state=present
-    sudo: yes
 
   handlers:
     - include: handlers.yml
