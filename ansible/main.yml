@@ -73,6 +73,10 @@
     acl: name=/home/vagrant/RedSparrowFront  entity=www-data etype=group permissions=rwx state=present default=yes
     sudo: yes
 
+  - name: permission for www user
+    acl: name=/home/vagrant/RedSparrowFront  entity=www-data etype=group permissions=rwx state=present
+    sudo: yes
+
   - name: permission for vagrant
     acl: name=/home/vagrant/RedSparrowFront  entity=vagrant etype=group permissions=rwx state=present default=yes
     sudo: yes
@@ -140,6 +144,8 @@
       - 10.165.53.105
       - 10.165.53.1
     sudo: yes
+    ignore_errors: yes
+
 
   - name: copy .my.cnf file with root password updated
     template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
