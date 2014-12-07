@@ -96,11 +96,6 @@
     sudo: yes
     sudo_user: vagrant
 
-  # - name: add repos
-  #   apt_repository:  repo={{ item }} state=present
-  #   with_items:
-  #    - "'deb http://ppa.launchpad.net/chris-lea/zeromq/ubuntu precise main'"
-  #    - "'deb-src http://ppa.launchpad.net/chris-lea/zeromq/ubuntu precise main'"
   - name: Install Web
     apt: pkg={{item}} state=installed
     with_items: web_package

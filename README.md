@@ -22,7 +22,11 @@ Test it
 ```
 http: localhost:8080
 mysql localhost:33060
+ssh  10.165.53.105
+login: vagrant
+password: vagrant
 ```
+Run on winwdows mount.bat to mount home of vm.
 
 Update it
 ----------
