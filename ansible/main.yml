@@ -47,13 +47,13 @@
 
 
   - name: clone redsparow
-    git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow update=no
+    git: repo=https://github.com/Teleinformatyka/RedSparrow.git dest=/home/vagrant/RedSparrow update=yes force=no
     remote_user: vagrant
     sudo: yes
     sudo_user: vagrant
 
   - name: clone RedSparrowFront
-    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/home/vagrant/RedSparrowFront update=no
+    git: repo=https://github.com/Teleinformatyka/RedSparrowFront.git dest=/home/vagrant/RedSparrowFront update=yes force=no
     remote_user: vagrant
     sudo: yes
     sudo_user: vagrant
